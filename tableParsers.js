@@ -14,19 +14,26 @@ const numberEdgeCases = (numberString) => {
   switch (numberString) {
     case 'one':
       return '1'
-    case 'two' | 'to' | 'too':
+    case 'two':
+    case 'to':
+    case 'too':
       return '2'
-    case 'three' | 'tree':
+    case 'three':
+    case 'tree':
       return '3'
-    case 'four' | 'for':
+    case 'four':
+    case 'for':
       return '4'
-    case 'five' | 'hive':
+    case 'five':
+    case 'hive':
       return '5'
-    case 'six' | 'ticks' | 'sex':
+    case 'six':
+    case 'sex':
       return '6'
     case 'seven':
       return '7'
-    case 'eight' | 'ate':
+    case 'eight':
+    case 'ate':
       return '8'
     case 'nine':
       return '9'
@@ -34,6 +41,7 @@ const numberEdgeCases = (numberString) => {
       return numberString
   }
 }
+// numberEdgeCases('to')
 
 const keyWordInfo = (parsedTranscription, keyWords, targetType = 'string') => {
   const keyWordSymbol = parsedTranscription.find(word => keyWords.find(keyWord => levenshtein(word, keyWord) < 2))
