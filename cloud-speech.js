@@ -1,5 +1,5 @@
 const {SpeechClient} = require('@google-cloud/speech')
-const client = new SpeechClient({keyFilename: './data-logger-322616-a7ba1d41c824.json'})
+const client = new SpeechClient({keyFilename: './data-logger-key.json'})
 
 
 const transcribeRecording = async (gcsURI) => {

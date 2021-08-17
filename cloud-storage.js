@@ -1,5 +1,5 @@
 const {Storage} = require('@google-cloud/storage')
-const storage = new Storage({keyFilename: './data-logger-322616-a7ba1d41c824.json'})
+const storage = new Storage({keyFilename: './data-logger-key.json'})
 const bucket = storage.bucket('speeches_for_transcription')
 
 const uploadFile = async (fileName) => {
