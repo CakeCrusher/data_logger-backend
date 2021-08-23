@@ -3,7 +3,7 @@ const { testParser, runningParser } = require('./tableParsers')
 
 
 
-const transcriptionHandler = (transcription) => {
+const transcriptionHandler = (transcription: string) => {
   const tables = ['testing', 'running']
   const transcribedTable = transcription.split(' ')[0]
   const closestTable = tables.reduce((acc, table) => {
@@ -12,7 +12,7 @@ const transcriptionHandler = (transcription) => {
   }, {distance: 3, table: 'ERROR'}).table
   console.log(closestTable);
   
-  let payload = {}
+  let payload: any = {}
   switch (closestTable) {
     case 'testing':
       payload = testParser(transcription)

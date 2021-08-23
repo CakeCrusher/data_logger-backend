@@ -1,0 +1,7 @@
+POST https://346c-68-234-232-27.ngrok.io/
+content-type: application/json
+
+{
+  "audioBase64": "",
+  "test": true
+}

@@ -1,8 +1,9 @@
+import { KeyWordInfo, RunningFields } from "./types";
+
 const levenshtein = require('js-levenshtein');
 
-const testParser = (transcription) => {
+const testParser = (transcription: string) => {
   const splitTable = transcription.split(' ')
-  // get all items from splitTable but the first and exclude any items that equal '$'
   const parsedTranscription = splitTable.slice(1).filter((item) => {
     return item !== '$'
   })
@@ -10,7 +11,7 @@ const testParser = (transcription) => {
   return payload
 }
 
-const numberEdgeCases = (numberString) => {
+const numberEdgeCases = (numberString: string): string => {
   switch (numberString) {
     case 'one':
       return '1'
@@ -43,9 +44,14 @@ const numberEdgeCases = (numberString) => {
 }
 // numberEdgeCases('to')
 
-const keyWordInfo = (parsedTranscription, keyWords, targetType = 'string') => {
+const keyWordInfo = (parsedTranscription: string[], keyWords: string[], targetType: string = 'string'): KeyWordInfo => {
   const keyWordSymbol = parsedTranscription.find(word => keyWords.find(keyWord => levenshtein(word, keyWord) < 2))
-  const keyWordIndex = parsedTranscription.indexOf(keyWordSymbol)
+  let keyWordIndex
+  if (keyWordSymbol) {
+    keyWordIndex = parsedTranscription.indexOf(keyWordSymbol)
+  } else {
+    keyWordIndex = 1
+  }
   let keyWordTarget
   switch (targetType) {
     case 'int':
@@ -65,7 +71,7 @@ const keyWordInfo = (parsedTranscription, keyWords, targetType = 'string') => {
   return {symbol: keyWordSymbol, index: keyWordIndex, target: keyWordTarget}
 }
 
-const runningParser = (transcription) => {
+const runningParser = (transcription: string): RunningFields => {
   const splitTable = transcription.split(' ')
   // get all items from splitTable but the first and exclude any items that equal '$'
   const parsedTranscription = splitTable.slice(1).filter((item) => {
@@ -74,10 +80,16 @@ const runningParser = (transcription) => {
   const minuteInfo = keyWordInfo(parsedTranscription, ['minute'], 'int')
   const secondInfo = keyWordInfo(parsedTranscription, ['second'], 'int')
   let mileInfo = keyWordInfo(parsedTranscription, ['mile', 'MI'], 'float')
+  
+  let timeTarget
+  let distanceTarget
+  if (typeof minuteInfo.target === 'number' && typeof secondInfo.target === 'number') {
+    timeTarget = minuteInfo.target * 60 + secondInfo.target
+  }
+  if (typeof mileInfo.target === 'number') {
+    distanceTarget = mileInfo.target * 1609.34
+  }
 
-
-  const timeTarget = parseInt(minuteInfo.target * 60 + secondInfo.target)
-  const distanceTarget = parseInt(mileInfo.target * 1609.34)
 
   const payload = {
     time: timeTarget,

@@ -1,8 +1,8 @@
 const {SpeechClient} = require('@google-cloud/speech')
-const client = new SpeechClient({keyFilename: './data-logger-key.json'})
+const client = new SpeechClient({keyFilename: './voice-logger-key.json'})
 
 
-const transcribeRecording = async (gcsURI) => {
+const transcribeRecording = async (gcsURI: string): Promise<any> => {
   const audio = {
     uri: gcsURI
   }
@@ -16,8 +16,8 @@ const transcribeRecording = async (gcsURI) => {
     config: config
   }
   const [response] = await client.recognize(request)
-  const transcription = response.results
-  const transcriptionStr = transcription.map(result => result.alternatives[0].transcript).join('\n');
+  const transcription: any = response.results
+  const transcriptionStr = transcription.map((result: any) => result.alternatives[0].transcript).join('\n');
 
   return transcription
 }
