@@ -43,7 +43,7 @@ var uploadFile = function (fileName) { return __awaiter(void 0, void 0, void 0, 
     var recordingURL;
     return __generator(this, function (_a) {
         switch (_a.label) {
-            case 0: return [4 /*yield*/, bucket.upload("./assets/" + fileName, { destination: fileName })];
+            case 0: return [4 /*yield*/, bucket.upload("./" + fileName, { destination: fileName })];
             case 1:
                 recordingURL = _a.sent();
                 return [2 /*return*/, "gs://speeches_to_transcribe/" + fileName];

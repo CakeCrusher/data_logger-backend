@@ -1,4 +1,4 @@
-POST https://346c-68-234-232-27.ngrok.io/
+POST https://3c3a-68-234-232-28.ngrok.io/transcribe
 content-type: application/json
 
 {
