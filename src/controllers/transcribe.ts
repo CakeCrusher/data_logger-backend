@@ -8,7 +8,8 @@ const fs = require('fs')
 
 
 const getTranscription = async (req: Request, res: Response) => {
-
+  console.log('transcribing');
+  
   let m4aStringified: string = req.body.audioBase64
   // // To save a specific audio string
   // await fs.writeFileSync('./audioBase64-example.txt', m4aStringified, {encoding: 'base64'}, (err: any) => {null})
@@ -23,11 +24,15 @@ const getTranscription = async (req: Request, res: Response) => {
   console.log('Transcribing...');
 
   const transcribe = async (fileName: string): Promise<any> => {
+    console.log(`translating file: ${fileName}`);
     const convertedFilePath = await linear16(`./${fileName}`, `./${fileName.split('.')[0]}.raw`)
     const convertedFileName = convertedFilePath.split('/').slice(-1)[0]
     
+    console.log(`uploading file: ${convertedFileName}`);
     const gcsURI = await uploadFile(convertedFileName)
+    console.log(`transcribing from gcs: ${gcsURI}`);
     const transcription = await transcribeRecording(gcsURI)
+    console.log(`deleting from from gcs: ${convertedFileName}`);
     await deleteFile(convertedFileName)
     console.log(convertedFileName);
     

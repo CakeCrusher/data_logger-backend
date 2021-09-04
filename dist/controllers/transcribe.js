@@ -48,6 +48,7 @@ var getTranscription = function (req, res) { return __awaiter(void 0, void 0, vo
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
+                console.log('transcribing');
                 m4aStringified = req.body.audioBase64;
                 // // To save a specific audio string
                 // await fs.writeFileSync('./audioBase64-example.txt', m4aStringified, {encoding: 'base64'}, (err: any) => {null})
@@ -71,16 +72,21 @@ var getTranscription = function (req, res) { return __awaiter(void 0, void 0, vo
                     var convertedFilePath, convertedFileName, gcsURI, transcription;
                     return __generator(this, function (_a) {
                         switch (_a.label) {
-                            case 0: return [4 /*yield*/, linear16("./" + fileName, "./" + fileName.split('.')[0] + ".raw")];
+                            case 0:
+                                console.log("translating file: " + fileName);
+                                return [4 /*yield*/, linear16("./" + fileName, "./" + fileName.split('.')[0] + ".raw")];
                             case 1:
                                 convertedFilePath = _a.sent();
                                 convertedFileName = convertedFilePath.split('/').slice(-1)[0];
+                                console.log("uploading file: " + convertedFileName);
                                 return [4 /*yield*/, uploadFile(convertedFileName)];
                             case 2:
                                 gcsURI = _a.sent();
+                                console.log("transcribing from gcs: " + gcsURI);
                                 return [4 /*yield*/, transcribeRecording(gcsURI)];
                             case 3:
                                 transcription = _a.sent();
+                                console.log("deleting from from gcs: " + convertedFileName);
                                 return [4 /*yield*/, deleteFile(convertedFileName)];
                             case 4:
                                 _a.sent();
