@@ -48,6 +48,7 @@ var getTranscription = function (req, res) { return __awaiter(void 0, void 0, vo
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
+                console.log('transcribing');
                 m4aStringified = req.body.audioBase64;
                 // // To save a specific audio string
                 // await fs.writeFileSync('./audioBase64-example.txt', m4aStringified, {encoding: 'base64'}, (err: any) => {null})

@@ -8,7 +8,8 @@ const fs = require('fs')
 
 
 const getTranscription = async (req: Request, res: Response) => {
-
+  console.log('transcribing');
+  
   let m4aStringified: string = req.body.audioBase64
   // // To save a specific audio string
   // await fs.writeFileSync('./audioBase64-example.txt', m4aStringified, {encoding: 'base64'}, (err: any) => {null})
