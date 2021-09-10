@@ -1,6 +1,33 @@
-import { KeyWordInfo } from "./types"
+import { KeyWordInfo, TableInput } from "./types"
 const fs = require('fs')
 const levenshtein = require('js-levenshtein');
+const fetch = require('node-fetch');
+
+export const fetchGraphQL = async (
+  schema: string,
+  variables: any = {},
+): Promise<any> => {
+  const graphql = JSON.stringify({
+    query: schema,
+    variables,
+  });
+  console.log(process.env.ADMIN_SECRET);
+  
+  const requestOptions = {
+    method: "POST",
+    headers: {
+      'content-type': 'application/json',
+      'x-hasura-admin-secret': `${process.env.ADMIN_SECRET}`,
+    },
+    body: graphql,
+  };
+  const database_url = "https://data-logger.hasura.app/v1/graphql";
+  const res = await fetch(database_url, requestOptions).then((res: any) =>
+    res.json()
+  );
+  
+  return res;
+};
 
 export const numberEdgeCases = (numberString: string): string => {
   switch (numberString) {
@@ -75,3 +102,124 @@ export const deleteFileLocally = (fileName: string) => {
     }
   })
 }
+
+export const createTableBody = (input: TableInput, user_id: string): any => {
+  const user_id_regex = user_id.replace(/[^a-zA-Z0-9]/g, '').slice(-12)
+  const tableName = `u_${user_id_regex}_${input.name}`
+  const typeParser = (type: String) => {
+    switch (type) {
+      case 'number':
+        return 'int'
+      case 'string':
+        return 'text'
+      default:
+        return 'text'
+    }
+  }
+  const customFields = input.fields.map(field => {
+    return `${field.label} ${typeParser(field.type)}`
+  }).join(', ')
+  const baseFields = [`id serial NOT NULL`, `user_id text NOT NULL`].join(', ')
+  const bulkBody = {
+    "type": "bulk",
+    "args": [
+      {
+        "type": "run_sql",
+        "args": {
+          "sql": `CREATE TABLE ${tableName}(${baseFields}, ${customFields}, PRIMARY KEY (id));`
+        }
+      },
+      {
+        "type": "track_table",
+        "args": {
+          "schema": "public",
+          "name": tableName
+        }
+      },
+      {
+        "type": "run_sql",
+        "args": {
+          "sql": `ALTER TABLE ${tableName} ADD FOREIGN KEY (user_id) REFERENCES users(id)`
+        }
+      },
+      {
+        "type": "create_object_relationship",
+        "args": {
+          "table": tableName,
+          "name": "user",
+          "using": {
+            "foreign_key_constraint_on": "user_id"
+          }
+        }
+      },
+      {
+        "type": "create_array_relationship",
+        "args": {
+          "table": "users",
+          "name": tableName,
+          "using": {
+            "foreign_key_constraint_on": {
+              "table": tableName,
+              "column": "user_id"
+            }
+          }
+        }
+      },
+      {
+        "type": "create_insert_permission",
+        "args": {
+          "table": tableName,
+          "role": "user",
+          "permission": {
+            "columns": "*",
+            "check": {
+              "user_id": {"_eq": "X-Hasura-User-Id"}
+            }
+          }
+        }
+      },
+      {
+        "type": "create_select_permission",
+        "args": {
+          "table": tableName,
+          "role": "user",
+          "permission": {
+            "columns": "*",
+            "filter": {
+              "user_id": {"_eq": "X-Hasura-User-Id"}
+            }
+          }
+        }
+      },
+      {
+        "type": "create_update_permission",
+        "args": {
+          "table": tableName,
+          "role": "user",
+          "permission": {
+            "columns": "*",
+            "filter": {
+              "user_id": {"_eq": "X-Hasura-User-Id"}
+            }
+          }
+        }
+      },
+      {
+        "type": "create_delete_permission",
+        "args": {
+          "table": tableName,
+          "role": "user",
+          "permission": {
+            "columns": "*",
+            "filter": {
+              "user_id": {"_eq": "X-Hasura-User-Id"}
+            }
+          }
+        }
+      }
+    ]
+  }
+  console.log('bulkBody: ', JSON.stringify(bulkBody));
+  
+  return bulkBody
+} 

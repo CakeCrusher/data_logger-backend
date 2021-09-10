@@ -36,9 +36,42 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteFileLocally = exports.createM4AFile = exports.keyWordInfo = exports.numberEdgeCases = void 0;
+exports.createTableBody = exports.deleteFileLocally = exports.createM4AFile = exports.keyWordInfo = exports.numberEdgeCases = exports.fetchGraphQL = void 0;
 var fs = require('fs');
 var levenshtein = require('js-levenshtein');
+var fetch = require('node-fetch');
+var fetchGraphQL = function (schema, variables) {
+    if (variables === void 0) { variables = {}; }
+    return __awaiter(void 0, void 0, void 0, function () {
+        var graphql, requestOptions, database_url, res;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    graphql = JSON.stringify({
+                        query: schema,
+                        variables: variables,
+                    });
+                    console.log(process.env.ADMIN_SECRET);
+                    requestOptions = {
+                        method: "POST",
+                        headers: {
+                            'content-type': 'application/json',
+                            'x-hasura-admin-secret': "" + process.env.ADMIN_SECRET,
+                        },
+                        body: graphql,
+                    };
+                    database_url = "https://data-logger.hasura.app/v1/graphql";
+                    return [4 /*yield*/, fetch(database_url, requestOptions).then(function (res) {
+                            return res.json();
+                        })];
+                case 1:
+                    res = _a.sent();
+                    return [2 /*return*/, res];
+            }
+        });
+    });
+};
+exports.fetchGraphQL = fetchGraphQL;
 var numberEdgeCases = function (numberString) {
     switch (numberString) {
         case 'one':
@@ -119,3 +152,123 @@ var deleteFileLocally = function (fileName) {
     });
 };
 exports.deleteFileLocally = deleteFileLocally;
+var createTableBody = function (input, user_id) {
+    var user_id_regex = user_id.replace(/[^a-zA-Z0-9]/g, '').slice(-12);
+    var tableName = "u_" + user_id_regex + "_" + input.name;
+    var typeParser = function (type) {
+        switch (type) {
+            case 'number':
+                return 'int';
+            case 'string':
+                return 'text';
+            default:
+                return 'text';
+        }
+    };
+    var customFields = input.fields.map(function (field) {
+        return field.label + " " + typeParser(field.type);
+    }).join(', ');
+    var baseFields = ["id serial NOT NULL", "user_id text NOT NULL"].join(', ');
+    var bulkBody = {
+        "type": "bulk",
+        "args": [
+            {
+                "type": "run_sql",
+                "args": {
+                    "sql": "CREATE TABLE " + tableName + "(" + baseFields + ", " + customFields + ", PRIMARY KEY (id));"
+                }
+            },
+            {
+                "type": "track_table",
+                "args": {
+                    "schema": "public",
+                    "name": tableName
+                }
+            },
+            {
+                "type": "run_sql",
+                "args": {
+                    "sql": "ALTER TABLE " + tableName + " ADD FOREIGN KEY (user_id) REFERENCES users(id)"
+                }
+            },
+            {
+                "type": "create_object_relationship",
+                "args": {
+                    "table": tableName,
+                    "name": "user",
+                    "using": {
+                        "foreign_key_constraint_on": "user_id"
+                    }
+                }
+            },
+            {
+                "type": "create_array_relationship",
+                "args": {
+                    "table": "users",
+                    "name": tableName,
+                    "using": {
+                        "foreign_key_constraint_on": {
+                            "table": tableName,
+                            "column": "user_id"
+                        }
+                    }
+                }
+            },
+            {
+                "type": "create_insert_permission",
+                "args": {
+                    "table": tableName,
+                    "role": "user",
+                    "permission": {
+                        "columns": "*",
+                        "check": {
+                            "user_id": { "_eq": "X-Hasura-User-Id" }
+                        }
+                    }
+                }
+            },
+            {
+                "type": "create_select_permission",
+                "args": {
+                    "table": tableName,
+                    "role": "user",
+                    "permission": {
+                        "columns": "*",
+                        "filter": {
+                            "user_id": { "_eq": "X-Hasura-User-Id" }
+                        }
+                    }
+                }
+            },
+            {
+                "type": "create_update_permission",
+                "args": {
+                    "table": tableName,
+                    "role": "user",
+                    "permission": {
+                        "columns": "*",
+                        "filter": {
+                            "user_id": { "_eq": "X-Hasura-User-Id" }
+                        }
+                    }
+                }
+            },
+            {
+                "type": "create_delete_permission",
+                "args": {
+                    "table": tableName,
+                    "role": "user",
+                    "permission": {
+                        "columns": "*",
+                        "filter": {
+                            "user_id": { "_eq": "X-Hasura-User-Id" }
+                        }
+                    }
+                }
+            }
+        ]
+    };
+    console.log('bulkBody: ', JSON.stringify(bulkBody));
+    return bulkBody;
+};
+exports.createTableBody = createTableBody;

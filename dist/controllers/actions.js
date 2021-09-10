@@ -36,7 +36,9 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.auth0 = void 0;
+exports.createTable = exports.auth0 = void 0;
+var helperFunctions_1 = require("../helperFunctions");
+var schemas_1 = require("../schemas");
 var fetch = require('node-fetch');
 var AuthenticationClient = require('auth0').AuthenticationClient;
 var getAuthManagagementApiToken = function () { return __awaiter(void 0, void 0, void 0, function () {
@@ -113,3 +115,62 @@ var auth0 = function (req, res) { return __awaiter(void 0, void 0, void 0, funct
     });
 }); };
 exports.auth0 = auth0;
+var createTable = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var user_id, input, createCustomTableRes, customTableId, createTableRes;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                console.log('creating table');
+                user_id = req.body.session_variables['x-hasura-user-id'];
+                input = req.body.input;
+                return [4 /*yield*/, helperFunctions_1.fetchGraphQL(schemas_1.CREATE_CUSTOMTABLE, {
+                        name: input.name,
+                        user_id: user_id
+                    })];
+            case 1:
+                createCustomTableRes = _a.sent();
+                if (!createCustomTableRes.data) {
+                    return [2 /*return*/, res.status(401)];
+                }
+                customTableId = createCustomTableRes.data.insert_customtable.returning[0].id;
+                console.log('customTableId: ', customTableId);
+                console.log(createCustomTableRes);
+                return [4 /*yield*/, input.fields.forEach(function (field) { return __awaiter(void 0, void 0, void 0, function () {
+                        var res;
+                        return __generator(this, function (_a) {
+                            switch (_a.label) {
+                                case 0: return [4 /*yield*/, helperFunctions_1.fetchGraphQL(schemas_1.CREATE_CTFIELD, {
+                                        label: field.label,
+                                        type: field.type,
+                                        customtable: customTableId,
+                                    })];
+                                case 1:
+                                    res = _a.sent();
+                                    console.log('made field');
+                                    if (!res.data) {
+                                        return [2 /*return*/, res.status(401)];
+                                    }
+                                    return [2 /*return*/];
+                            }
+                        });
+                    }); })];
+            case 2:
+                _a.sent();
+                return [4 /*yield*/, fetch('https://data-logger.hasura.app/v1/query', {
+                        method: 'POST',
+                        body: JSON.stringify(helperFunctions_1.createTableBody(input, user_id)),
+                        headers: {
+                            "content-type": "application/json",
+                            "x-hasura-admin-secret": "3fVAMs0P7prKMOzAUb4uUoJF9eTrbPTh0X9sqe6vGnECNT0AHa3Bkyndf81V6pS4"
+                        }
+                    })];
+            case 3:
+                createTableRes = _a.sent();
+                console.log('made table res: ', createTableRes);
+                return [2 /*return*/, res.json({
+                        tableName: user_id + "_" + input.name,
+                    })];
+        }
+    });
+}); };
+exports.createTable = createTable;

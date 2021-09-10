@@ -1,4 +1,7 @@
 import { Request, Response } from 'express';
+import { createTableBody, fetchGraphQL } from '../helperFunctions';
+import { CREATE_CTFIELD, CREATE_CUSTOMTABLE } from '../schemas';
+import { TableInput, TCFields } from '../types';
 const fetch = require('node-fetch');
 var AuthenticationClient = require('auth0').AuthenticationClient;
 
@@ -52,5 +55,56 @@ export const auth0 = async (req: Request, res: Response) => {
     id: profileInfo.user_id,
     name: profileInfo.nickname,
     email: profileInfo.email,
+  })
+}
+
+export const createTable = async (req: Request, res: Response) => {
+  console.log('creating table');
+  
+  const user_id = req.body.session_variables['x-hasura-user-id']
+  const input: TableInput = req.body.input
+
+  const createCustomTableRes = await fetchGraphQL(CREATE_CUSTOMTABLE, {
+    name: input.name,
+    user_id
+  })
+  if (!createCustomTableRes.data) {
+    return res.status(401)
+  }
+  const customTableId = createCustomTableRes.data.insert_customtable.returning[0].id
+  console.log('customTableId: ', customTableId);
+  
+
+  console.log(createCustomTableRes);
+  
+
+  await input.fields.forEach(async (field: TCFields) => {
+    const res = await fetchGraphQL(CREATE_CTFIELD, {
+      label: field.label,
+      type: field.type,
+      customtable: customTableId,
+    })
+    console.log('made field');
+    
+    if (!res.data) {
+      return res.status(401)
+    }
+  })
+
+  const createTableRes = await fetch('https://data-logger.hasura.app/v1/query', {
+    method: 'POST',
+    body: JSON.stringify(createTableBody(input, user_id)),
+    headers: {
+      "content-type": "application/json",
+      "x-hasura-admin-secret": "3fVAMs0P7prKMOzAUb4uUoJF9eTrbPTh0X9sqe6vGnECNT0AHa3Bkyndf81V6pS4"
+    }
+  })
+  console.log('made table res: ', createTableRes);
+  
+
+  
+  
+  return res.json({
+    tableName: `${user_id}_${input.name}`,
   })
 }

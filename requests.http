@@ -1,7 +1,160 @@
-POST https://5389-68-234-232-27.ngrok.io/transcribe
+# POST https://5389-68-234-232-27.ngrok.io/transcribe
+# content-type: application/json
+
+# {
+#   "audioBase64": "",
+#   "test": true
+# }
+
+# POST https://data-logger.hasura.app/v1/query
+# content-type: application/json
+# x-hasura-admin-secret: 3fVAMs0P7prKMOzAUb4uUoJF9eTrbPTh0X9sqe6vGnECNT0AHa3Bkyndf81V6pS4
+
+# {
+#   "type": "run_sql",
+#   "args": {
+#     "sql": "CREATE TABLE sebasTable(id serial NOT NULL, note text NOT NULL, user_id text NOT NULL, PRIMARY KEY (id));"
+#   }
+# }
+
+# POST https://data-logger.hasura.app/v1/query
+# content-type: application/json
+# x-hasura-admin-secret: 3fVAMs0P7prKMOzAUb4uUoJF9eTrbPTh0X9sqe6vGnECNT0AHa3Bkyndf81V6pS4
+
+# {
+#   "type": "track_table",
+#   "args": {
+#     "schema": "public",
+#     "name": "sebastable"
+#   }
+# }
+
+# POST https://data-logger.hasura.app/v1/query
+# content-type: application/json
+# x-hasura-admin-secret: 3fVAMs0P7prKMOzAUb4uUoJF9eTrbPTh0X9sqe6vGnECNT0AHa3Bkyndf81V6pS4
+
+# {
+#   "type": "run_sql",
+#   "args": {
+#     "sql": "ALTER TABLE sebastable ADD FOREIGN KEY (user_id) REFERENCES users(id)"
+#   }
+# }
+
+# POST https://data-logger.hasura.app/v1/query
+# content-type: application/json
+# x-hasura-admin-secret: 3fVAMs0P7prKMOzAUb4uUoJF9eTrbPTh0X9sqe6vGnECNT0AHa3Bkyndf81V6pS4
+
+# {
+#   "type": "create_object_relationship",
+#   "args": {
+#     "table": "sebastable",
+#     "name": "user",
+#     "using": {
+#       "foreign_key_constraint_on": "user_id"
+#     }
+#   }
+# }
+
+POST https://data-logger.hasura.app/v1/query
 content-type: application/json
+x-hasura-admin-secret: 3fVAMs0P7prKMOzAUb4uUoJF9eTrbPTh0X9sqe6vGnECNT0AHa3Bkyndf81V6pS4
 
 {
-  "audioBase64": "",
-  "test": true
+  "type": "bulk",
+  "args": [
+    {
+      "type": "run_sql",
+      "args": {
+        "sql": "CREATE TABLE sebasTable(id serial NOT NULL, note text NOT NULL, user_id text NOT NULL, PRIMARY KEY (id));"
+      }
+    },
+    {
+      "type": "track_table",
+      "args": {
+        "schema": "public",
+        "name": "sebastable"
+      }
+    },
+    {
+      "type": "run_sql",
+      "args": {
+        "sql": "ALTER TABLE sebastable ADD FOREIGN KEY (user_id) REFERENCES users(id)"
+      }
+    },
+    {
+      "type": "create_object_relationship",
+      "args": {
+        "table": "sebastable",
+        "name": "user",
+        "using": {
+          "foreign_key_constraint_on": "user_id"
+        }
+      }
+    },
+    {
+      "type": "create_array_relationship",
+      "args": {
+        "table": "users",
+        "name": "sebastables",
+        "using": {
+          "foreign_key_constraint_on": {
+            "table": "sebastable",
+            "column": "user_id"
+          }
+        }
+      }
+    },
+    {
+      "type": "create_insert_permission",
+      "args": {
+        "table": "sebastable",
+        "role": "user",
+        "permission": {
+          "columns": "*",
+          "check": {
+            "user_id": {"_eq": "X-Hasura-User-Id"}
+          }
+        }
+      }
+    },
+    {
+      "type": "create_select_permission",
+      "args": {
+        "table": "sebastable",
+        "role": "user",
+        "permission": {
+          "columns": "*",
+          "filter": {
+            "user_id": {"_eq": "X-Hasura-User-Id"}
+          }
+        }
+      }
+    },
+    {
+      "type": "create_update_permission",
+      "args": {
+        "table": "sebastable",
+        "role": "user",
+        "permission": {
+          "columns": "*",
+          "filter": {
+            "user_id": {"_eq": "X-Hasura-User-Id"}
+          }
+        }
+      }
+    },
+    {
+      "type": "create_delete_permission",
+      "args": {
+        "table": "sebastable",
+        "role": "user",
+        "permission": {
+          "columns": "*",
+          "filter": {
+            "user_id": {"_eq": "X-Hasura-User-Id"}
+          }
+        }
+      }
+    }
+  ]
 }

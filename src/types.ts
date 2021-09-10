@@ -8,3 +8,13 @@ export type RunningFields = {
   time: number | undefined;
   distance: number | undefined;
 }
+
+export type TCFields = {
+  label: String;
+  type: String;
+}
+
+export type TableInput = {
+  name: string;
+  fields: TCFields[];
+}
