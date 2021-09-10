@@ -85,10 +85,10 @@ var keyWordInfo = function (parsedTranscription, keyWords, targetType) {
     var keyWordTarget;
     switch (targetType) {
         case 'int':
-            keyWordTarget = parseInt(exports.numberEdgeCases(parsedTranscription[keyWordIndex - 1]));
+            keyWordTarget = parseInt((0, exports.numberEdgeCases)(parsedTranscription[keyWordIndex - 1]));
             break;
         case 'float':
-            keyWordTarget = parseFloat(exports.numberEdgeCases(parsedTranscription[keyWordIndex - 1]));
+            keyWordTarget = parseFloat((0, exports.numberEdgeCases)(parsedTranscription[keyWordIndex - 1]));
             break;
         default:
             keyWordTarget = parsedTranscription[keyWordIndex - 1];

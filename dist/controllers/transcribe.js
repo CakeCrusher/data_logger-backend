@@ -57,7 +57,7 @@ var getTranscription = function (req, res) { return __awaiter(void 0, void 0, vo
                 //   console.log('Test');
                 //   m4aStringified = await fs.readFileSync('./audioBase64-example.txt', {encoding: 'base64'})
                 // }
-                return [4 /*yield*/, helperFunctions_1.createM4AFile(m4aStringified)];
+                return [4 /*yield*/, (0, helperFunctions_1.createM4AFile)(m4aStringified)];
             case 1:
                 // // To save a specific audio string
                 // await fs.writeFileSync('./audioBase64-example.txt', m4aStringified, {encoding: 'base64'}, (err: any) => {null})
@@ -91,8 +91,8 @@ var getTranscription = function (req, res) { return __awaiter(void 0, void 0, vo
                             case 4:
                                 _a.sent();
                                 console.log(convertedFileName);
-                                helperFunctions_1.deleteFileLocally(convertedFileName);
-                                helperFunctions_1.deleteFileLocally('toTranscribe.m4a');
+                                (0, helperFunctions_1.deleteFileLocally)(convertedFileName);
+                                (0, helperFunctions_1.deleteFileLocally)('toTranscribe.m4a');
                                 return [2 /*return*/, transcription];
                         }
                     });

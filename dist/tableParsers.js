@@ -16,9 +16,9 @@ var runningParser = function (transcription) {
     var parsedTranscription = splitTable.slice(1).filter(function (item) {
         return item !== '$';
     });
-    var minuteInfo = helperFunctions_1.keyWordInfo(parsedTranscription, ['minute'], 'int');
-    var secondInfo = helperFunctions_1.keyWordInfo(parsedTranscription, ['second'], 'int');
-    var mileInfo = helperFunctions_1.keyWordInfo(parsedTranscription, ['mile', 'MI'], 'float');
+    var minuteInfo = (0, helperFunctions_1.keyWordInfo)(parsedTranscription, ['minute'], 'int');
+    var secondInfo = (0, helperFunctions_1.keyWordInfo)(parsedTranscription, ['second'], 'int');
+    var mileInfo = (0, helperFunctions_1.keyWordInfo)(parsedTranscription, ['mile', 'MI'], 'float');
     var timeTarget;
     var distanceTarget;
     if (typeof minuteInfo.target === 'number' && typeof secondInfo.target === 'number') {

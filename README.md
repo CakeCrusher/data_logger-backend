@@ -8,3 +8,5 @@
 5. follow [these](https://cloud.google.com/iam/docs/creating-managing-service-account-keys) steps to create and download a service account key
 6. add the key to the root directory of the project and name it `voice-logger-key.json`
 7. start with `npm run start-dev`
+8. run `docker-compose up`
+9. navigate to [http://localhost:4551/inspect/http](http://localhost:4551/inspect/http) 
