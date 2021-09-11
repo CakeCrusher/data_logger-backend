@@ -119,7 +119,7 @@ export const createTableBody = (input: TableInput, user_id: string): any => {
   const customFields = input.fields.map(field => {
     return `${field.label} ${typeParser(field.type)}`
   }).join(', ')
-  const baseFields = [`id serial NOT NULL`, `user_id text NOT NULL`].join(', ')
+  const baseFields = [`id serial NOT NULL`, `user_id text NOT NULL`, `dateTime text NOT NULL`].join(', ')
   const bulkBody = {
     "type": "bulk",
     "args": [

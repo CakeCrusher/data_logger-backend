@@ -18,3 +18,9 @@ export type TableInput = {
   name: string;
   fields: TCFields[];
 }
+
+export type Transcription = {
+  table: string;
+  dateTime: string;
+  payload: any;
+}

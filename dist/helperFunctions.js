@@ -168,7 +168,7 @@ var createTableBody = function (input, user_id) {
     var customFields = input.fields.map(function (field) {
         return field.label + " " + typeParser(field.type);
     }).join(', ');
-    var baseFields = ["id serial NOT NULL", "user_id text NOT NULL"].join(', ');
+    var baseFields = ["id serial NOT NULL", "user_id text NOT NULL", "dateTime text NOT NULL"].join(', ');
     var bulkBody = {
         "type": "bulk",
         "args": [

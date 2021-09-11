@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 var levenshtein = require('js-levenshtein');
 var _a = require('./tableParsers'), testParser = _a.testParser, runningParser = _a.runningParser;
 var transcriptionHandler = function (transcription) {

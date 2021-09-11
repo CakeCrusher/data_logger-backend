@@ -1,3 +1,5 @@
+import { Transcription } from "./types";
+
 const levenshtein = require('js-levenshtein');
 const { testParser, runningParser } = require('./tableParsers')
 
@@ -38,7 +40,7 @@ const transcriptionHandler = (transcription: string) => {
     table: closestTable,
     dateTime: new Date().toISOString(),
     payload
-  }
+  } as Transcription
 }
 
 module.exports = {transcriptionHandler}

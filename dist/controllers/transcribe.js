@@ -1,4 +1,15 @@
 "use strict";
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -36,7 +47,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getTranscription = void 0;
+exports.classifyTranscription = exports.getTranscription = void 0;
 var helperFunctions_1 = require("../helperFunctions");
 var _a = require('../api/cloud-storage'), uploadFile = _a.uploadFile, deleteFile = _a.deleteFile;
 var transcribeRecording = require('../api/cloud-speech').transcribeRecording;
@@ -44,12 +55,12 @@ var transcriptionHandler = require('../transcriptionClassifier').transcriptionHa
 var linear16 = require('linear16');
 var fs = require('fs');
 var getTranscription = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var m4aStringified, transcribe, transcription, stringifiedTranscription, result;
+    var m4aStringified, transcribe, transcription, stringifiedTranscription, transcript;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
                 console.log('transcribing');
-                m4aStringified = req.body.audioBase64;
+                m4aStringified = req.body.input.audioBase64;
                 // // To save a specific audio string
                 // await fs.writeFileSync('./audioBase64-example.txt', m4aStringified, {encoding: 'base64'}, (err: any) => {null})
                 // // To load a specific audio string
@@ -102,12 +113,30 @@ var getTranscription = function (req, res) { return __awaiter(void 0, void 0, vo
                 transcription = _a.sent();
                 console.log('transcription: ', JSON.stringify(transcription));
                 stringifiedTranscription = transcription.map(function (portion) { return portion.alternatives[0].transcript; }).join(' $ ');
-                console.log('stringifiedTranscription: ', stringifiedTranscription);
-                result = transcriptionHandler(stringifiedTranscription);
-                console.log('result: ', result);
-                res.json(result);
+                transcript = transcription[0].alternatives[0].transcript;
+                // console.log('stringifiedTranscription: ', stringifiedTranscription);
+                // const result = transcriptionHandler(stringifiedTranscription)
+                // console.log('result: ', result);
+                console.log('transcript: ', transcript);
+                res.json({
+                    transcript: transcript
+                });
                 return [2 /*return*/];
         }
     });
 }); };
 exports.getTranscription = getTranscription;
+var classifyTranscription = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var transcript, classifiedTranscription, result;
+    return __generator(this, function (_a) {
+        transcript = req.body.input.transcript;
+        // const transcript: string = 'running 1 mile 1 minute 1 second'
+        console.log('stringifiedTranscription: ', transcript);
+        classifiedTranscription = transcriptionHandler(transcript);
+        console.log('classifiedTranscription: ', classifiedTranscription);
+        result = __assign(__assign({}, classifiedTranscription), { payload: JSON.stringify(classifiedTranscription.payload) });
+        res.json(result);
+        return [2 /*return*/];
+    });
+}); };
+exports.classifyTranscription = classifyTranscription;
